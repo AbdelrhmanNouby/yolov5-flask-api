@@ -11,6 +11,7 @@ import numpy as np
 import base64
 from PIL import Image
 from flask import Flask, request, jsonify
+import torchvision.transforms as transforms
 
 device = torch.device('cpu')
 model = DetectMultiBackend('yolov5s.pt', device=device)
@@ -28,7 +29,13 @@ def detect():
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(img_rgb)
 
-        results = model(pil_img, augment=False, visualize=False)
+        # Convert PIL to tensor
+        transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+        
+        img_tensor = transform(pil_img).unsqueeze(0).to(device)
+        results = model(img_tensor)
         model.names = model.names if hasattr(model, 'names') else model.model.names
         results.render()
         annotated = results.ims[0]
