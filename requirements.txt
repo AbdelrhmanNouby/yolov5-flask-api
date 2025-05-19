@@ -7,3 +7,6 @@ matplotlib
 PyYAML
 gunicorn
 pandas
+requests
+scipy
+tqdm
