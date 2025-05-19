@@ -6,9 +6,9 @@ from PIL import Image
 from flask import Flask, request, jsonify
 
 # Force model to load on CPU
-device = torch.device('cpu')
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-model.to(device)
+from yolov5.models.common import DetectMultiBackend  # Optional for newer YOLO versions
+
+model = torch.load('yolov5s.pt', map_location=torch.device('cpu'))['model'].float()
 model.eval()
 
 app = Flask(__name__)
