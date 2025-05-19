@@ -1,6 +1,8 @@
 flask
 torch
-torchvision
-Pillow
 opencv-python
+Pillow
+numpy
+matplotlib
+PyYAML
 gunicorn
