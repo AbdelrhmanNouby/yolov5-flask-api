@@ -1,3 +1,9 @@
+import os
+import sys
+
+# Add yolov5 to Python path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'yolov5'))
+
 import torch
 from yolov5.models.common import DetectMultiBackend  # Now this works
 import cv2

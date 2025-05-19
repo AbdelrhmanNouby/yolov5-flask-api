@@ -1,13 +1,10 @@
 flask
-torch
-opencv-python
+torch>=1.9.0
+opencv-python-headless
 Pillow
 numpy
 matplotlib
-PyYAML
-gunicorn
-pandas
-requests
+pyyaml
 scipy
 tqdm
-utils 
+requests
