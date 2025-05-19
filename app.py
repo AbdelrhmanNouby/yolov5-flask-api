@@ -27,16 +27,19 @@ def detect():
         nparr = np.frombuffer(img_bytes, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        pil_img = Image.fromarray(img_rgb)
 
-        # Convert PIL to tensor
+        # Resize and convert to tensor
+        pil_img = Image.fromarray(img_rgb).resize((640, 480))  # ✅ Resize
         transform = transforms.Compose([
             transforms.ToTensor()
         ])
-        
         img_tensor = transform(pil_img).unsqueeze(0).to(device)
+
+        # Inference
         results = model(img_tensor)
         model.names = model.names if hasattr(model, 'names') else model.model.names
+
+        # Render and encode
         results.render()
         annotated = results.ims[0]
         annotated_img = cv2.cvtColor(np.array(annotated), cv2.COLOR_RGB2BGR)
