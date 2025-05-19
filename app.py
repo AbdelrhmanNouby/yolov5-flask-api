@@ -7,7 +7,7 @@ from flask import Flask, request, jsonify
 import os
 
 # Force model to load on CPU
-model = torch.load('yolov5s.pt', map_location=torch.device('cpu'))['model'].float()
+model = torch.load('yolov5s.pt', map_location=torch.device('cpu'), weights_only=False)['model'].float()
 model.eval()
 
 app = Flask(__name__)
