@@ -4,6 +4,7 @@ import numpy as np
 import base64
 from PIL import Image
 from flask import Flask, request, jsonify
+import os
 
 # Force model to load on CPU
 model = torch.load('yolov5s.pt', map_location=torch.device('cpu'))['model'].float()
@@ -43,5 +44,5 @@ def detect():
         return jsonify({'status': 'error', 'message': str(e)})
 
 if __name__ == '__main__':
-    # Allow access from other devices on the network
-    app.run(host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
