@@ -6,8 +6,6 @@ from PIL import Image
 from flask import Flask, request, jsonify
 
 # Force model to load on CPU
-from yolov5.models.common import DetectMultiBackend  # Optional for newer YOLO versions
-
 model = torch.load('yolov5s.pt', map_location=torch.device('cpu'))['model'].float()
 model.eval()
 
