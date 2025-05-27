@@ -40,6 +40,10 @@ async def detect(websocket, path):
             response = {'status': 'error', 'message': str(e)}
         await websocket.send(json.dumps(response))
 
-start_server = websockets.serve(detect, "0.0.0.0", 8765)
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+
+async def main():
+    async with websockets.serve(detect, "0.0.0.0", 8765):
+        await asyncio.Future()  # Run forever
+
+if __name__ == "__main__":
+    asyncio.run(main())
