@@ -16,13 +16,12 @@ model.eval()
 
 app = Flask(__name__)
 
-@app.route('/ping', methods=['GET'])
-def ping():
-    return 'pong', 200
-
 @app.route('/detect', methods=['POST'])
 def detect():
     try:
+        # Start processing timer
+        start_time = time.time()
+
         file = request.files['image']
         img_bytes = file.read()
 
@@ -32,14 +31,11 @@ def detect():
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(img_rgb)
 
-        # Start processing timer
-        start_time = time.time()
 
         # Run YOLOv5 detection
         results = model(pil_img)
         results.render()
 
-        processing_latency = (time.time() - start_time) * 1000  # in milliseconds
 
         # Encode result image
         rendered = results.ims[0]
@@ -47,6 +43,8 @@ def detect():
         _, img_encoded = cv2.imencode('.jpg', annotated_img)
         img_base64 = base64.b64encode(img_encoded.tobytes()).decode('utf-8')
 
+        processing_latency = (time.time() - start_time) * 1000  # in milliseconds
+        
         return jsonify({
             'status': 'success',
             'image_base64': img_base64,
