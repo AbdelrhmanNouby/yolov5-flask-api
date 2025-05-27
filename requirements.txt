@@ -12,3 +12,5 @@ requests
 scipy
 tqdm
 seaborn
+websockets
+websocket-client
