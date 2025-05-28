@@ -1,4 +1,5 @@
 app = "yolov5-flask-app"
+primary_region = "fra"
 
 kill_signal = "SIGINT"
 kill_timeout = 5
@@ -8,7 +9,7 @@ processes = []
 PORT = "5000"
 
 [[services]]
-  internal_port = 8080
+  internal_port = 5000
   protocol = "tcp"
 
   [services.concurrency]
