@@ -5,7 +5,12 @@ import csv
 import matplotlib.pyplot as plt
 import time
 import os
+import threading
+from flask import Flask, jsonify, send_from_directory
 from model_utils import get_model, get_loaders, evaluate_model
+
+# --- Flask App Initialization ---
+app = Flask(__name__)
 
 # Ensure results directory exists
 os.makedirs("results", exist_ok=True)
@@ -13,6 +18,7 @@ os.makedirs("results", exist_ok=True)
 # Global result tracking
 results = []
 start_time = time.time()
+fl_server_thread = None
 
 # Evaluation function used by the strategy
 def evaluate_fn(server_round, parameters, config):
@@ -81,20 +87,46 @@ def save_and_plot_results():
     plt.savefig("results/federated_accuracy_plot.png")
     plt.close()
 
-# Save final model and training summary
-def save_final_model():
-    model = get_model()
-    torch.save(model.state_dict(), "results/models/resnet18_fed_cifar10.pth")
-
-
-if __name__ == "__main__":
+# --- Flower Server Function ---
+def run_fl_server():
+    """Starts the Flower server and saves results upon completion."""
     strategy = get_strategy()
-    port = int(os.environ.get("PORT", 8080))
+    # The Flower server will run on port 8080
     fl.server.start_server(
-        server_address=f"0.0.0.0:{port}",
+        server_address="0.0.0.0:8080",
         config=fl.server.ServerConfig(num_rounds=50),
         strategy=strategy
     )
+    # These will run after the FL process is finished.
     save_and_plot_results()
-    save_final_model()
+    print("Federated learning finished and results saved.")
+
+# --- Flask API Endpoints ---
+@app.route('/')
+def status():
+    """Endpoint to check if the server is running."""
+    return jsonify({
+        "status": "Federated Learning Server is running",
+        "flower_thread_running": fl_server_thread.is_alive() if fl_server_thread else False
+    })
+
+@app.route('/results')
+def get_results():
+    """Endpoint to get the current training results."""
+    return jsonify(results)
+
+@app.route('/results/<path:filename>')
+def download_file(filename):
+    """Endpoint to download result files (plots, csv)."""
+    return send_from_directory('results', filename, as_attachment=True)
+
+# --- Main Execution ---
+if __name__ == "__main__":
+    # Start the Flower server in a background thread
+    fl_server_thread = threading.Thread(target=run_fl_server)
+    fl_server_thread.start()
     
+    # Start the Flask app
+    # Gunicorn will be used in production, this is for local development
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
